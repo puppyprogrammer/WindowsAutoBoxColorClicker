@@ -29,9 +29,6 @@ class ColorClicker:
         if self.thread:
             self.thread.join(timeout=1.0)
 
-import mss
-from PIL import Image
-
     def _run_loop(self):
         print(f"Bot started. Watching {len(self.targets)} targets.")
         with mss.mss() as sct:
