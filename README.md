@@ -14,5 +14,8 @@ A simple Python tool to automate clicking on a specific color within a selected 
 4.  Click **"Stop"** to pause.
 
 ## Troubleshooting
+- **"System cannot find the path specified"**: This usually means Python is not in your system PATH.
+    - When installing Python, make sure to check **"Add Python to PATH"**.
+    - Or, you can edit `run.bat` to point to your specific python.exe location.
 - **Not clicking?** Try increasing the tolerance in `bot.py` or re-picking the color to ensure it matches exactly.
 - **Clicking wrong thing?** Your region might be too big or the color too common. Try a smaller, more specific region.
