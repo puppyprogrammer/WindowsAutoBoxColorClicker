@@ -132,12 +132,29 @@ class AutoBoxApp:
 
     def on_region_selected(self, x, y, w, h):
         self.temp_region = (x, y, w, h)
-        # Immediately start color pick
-        self.root.deiconify() # Briefly show to handle focus if needed, but better to stay hidden or re-hide
-        # Actually, let's keep it hidden or re-hide for smooth flow
-        # But we need to update status? 
-        # Let's just go straight to color picker
+        self.root.deiconify()
+        
+        # User feedback sequence
+        self.list_targets.insert(tk.END, ">> REGION ACQUIRED <<")
+        self.list_targets.insert(tk.END, ">> PREPARING COLOR PICKER... <<")
+        self.list_targets.see(tk.END)
+        self.root.update()
+        
+        # Countdown to give user time to read
+        import time
+        for i in range(3, 0, -1):
+            self.list_targets.insert(tk.END, f">> LAUNCHING IN {i}... <<")
+            self.list_targets.see(tk.END)
+            self.root.update()
+            time.sleep(0.8)
+            
+        self.list_targets.insert(tk.END, ">> SELECT TARGET COLOR NOW <<")
+        self.list_targets.see(tk.END)
+        self.root.update()
+        time.sleep(0.5)
+        
         self.lbl_status.config(text="STATUS: PICK COLOR...")
+        self.root.iconify()
         ColorPickerOverlay(self.root, self.on_color_picked)
 
     def on_color_picked(self, x, y):
