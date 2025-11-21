@@ -27,62 +27,76 @@ class ColorClicker:
         if self.thread:
             self.thread.join(timeout=1.0)
 
+import mss
+from PIL import Image
+
     def _run_loop(self):
         print(f"Bot started. Watching {len(self.targets)} targets.")
-        while self.running:
-            try:
-                for target in self.targets:
-                    if not self.running: break
-                    
-                    region = target['region']
-                    target_color = target['color']
-                    
-                    if target_color is None:
-                        continue
-                    
-                    # Take a screenshot of the region
-                    try:
-                        img = pyautogui.screenshot(region=region)
-                    except Exception as e:
-                        with open("bot_debug.log", "a") as f:
-                            f.write(f"Screenshot failed for region {region}: {e}\n")
-                        continue
-                    
-                    # Check if the color exists in the image
-                    found_point = self._find_color(img, target_color)
-                    
-                    if found_point:
-                        # Convert local image coordinates to screen coordinates
-                        screen_x = region[0] + found_point[0]
-                        screen_y = region[1] + found_point[1]
+        with mss.mss() as sct:
+            while self.running:
+                try:
+                    for target in self.targets:
+                        if not self.running: break
                         
-                        log_msg = f"Target {target_color} found at local({found_point}) -> screen({screen_x}, {screen_y})\n"
-                        print(log_msg)
-                        with open("bot_debug.log", "a") as f:
-                            f.write(log_msg)
+                        region = target['region']
+                        target_color = target['color']
+                        
+                        if target_color is None:
+                            continue
+                        
+                        # MSS expects {'top': y, 'left': x, 'width': w, 'height': h}
+                        # Our region is (x, y, w, h)
+                        monitor = {
+                            "left": int(region[0]),
+                            "top": int(region[1]),
+                            "width": int(region[2]),
+                            "height": int(region[3])
+                        }
+                        
+                        # Take a screenshot of the region using MSS
+                        try:
+                            sct_img = sct.grab(monitor)
+                            # Convert to PIL Image
+                            img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
+                        except Exception as e:
+                            with open("bot_debug.log", "a") as f:
+                                f.write(f"Screenshot failed for region {region}: {e}\n")
+                            continue
+                        
+                        # Check if the color exists in the image
+                        found_point = self._find_color(img, target_color)
+                        
+                        if found_point:
+                            # Convert local image coordinates to screen coordinates
+                            screen_x = region[0] + found_point[0]
+                            screen_y = region[1] + found_point[1]
                             
-                        # Save debug image to verify what the bot saw
-                        # Draw a box around the found point
-                        from PIL import ImageDraw
-                        debug_img = img.copy()
-                        draw = ImageDraw.Draw(debug_img)
-                        draw.rectangle([found_point[0]-5, found_point[1]-5, found_point[0]+5, found_point[1]+5], outline="red", width=2)
-                        debug_img.save("debug_found.png")
-                        
-                        pyautogui.click(x=screen_x, y=screen_y)
-                        
-                        # Wait a bit to avoid rapid-fire clicking on the same frame
-                        time.sleep(0.5)
-                
-                # Small sleep to prevent CPU hogging and respect user delay
-                time.sleep(self.delay)
-                
-            except Exception as e:
-                err_msg = f"Error in bot loop: {e}\n"
-                print(err_msg)
-                with open("bot_debug.log", "a") as f:
-                    f.write(err_msg)
-                time.sleep(1)
+                            log_msg = f"Target {target_color} found at local({found_point}) -> screen({screen_x}, {screen_y})\n"
+                            print(log_msg)
+                            with open("bot_debug.log", "a") as f:
+                                f.write(log_msg)
+                                
+                            # Save debug image
+                            from PIL import ImageDraw
+                            debug_img = img.copy()
+                            draw = ImageDraw.Draw(debug_img)
+                            draw.rectangle([found_point[0]-5, found_point[1]-5, found_point[0]+5, found_point[1]+5], outline="red", width=2)
+                            debug_img.save("debug_found.png")
+                            
+                            pyautogui.click(x=screen_x, y=screen_y)
+                            
+                            # Wait a bit to avoid rapid-fire clicking on the same frame
+                            time.sleep(0.5)
+                    
+                    # Small sleep to prevent CPU hogging and respect user delay
+                    time.sleep(self.delay)
+                    
+                except Exception as e:
+                    err_msg = f"Error in bot loop: {e}\n"
+                    print(err_msg)
+                    with open("bot_debug.log", "a") as f:
+                        f.write(err_msg)
+                    time.sleep(1)
 
     def _find_color(self, img, target_color):
         """
