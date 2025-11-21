@@ -1,10 +1,10 @@
 @echo off
-REM Attempt to launch silently using pythonw
-start "" pythonw main.py
+REM Use Python to find pythonw and launch the app silently
+python -c "import sys, os, subprocess; pythonw = sys.executable.replace('python.exe', 'pythonw.exe'); subprocess.Popen([pythonw, 'main.py'], cwd=os.getcwd())"
 
-REM If that fails (e.g. pythonw not in path), fall back to visible python
 if %errorlevel% neq 0 (
-    echo Silent launch failed. Falling back to debug mode...
+    echo.
+    echo Launch failed. Trying visible mode...
     python main.py
     pause
 )
