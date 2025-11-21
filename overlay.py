@@ -48,6 +48,9 @@ class SelectionOverlay:
     def on_button_press(self, event):
         self.start_x = event.x
         self.start_y = event.y
+        # Capture absolute start position directly from the mouse
+        self.start_abs_x, self.start_abs_y = self.top.winfo_pointerxy()
+        
         # Create the rectangle
         self.rect = self.canvas.create_rectangle(self.start_x, self.start_y, self.start_x, self.start_y, outline='red', width=2)
 
@@ -61,29 +64,21 @@ class SelectionOverlay:
             self.close()
             return
 
-        # Calculate coordinates relative to the canvas (which matches virtual screen)
-        x1 = min(self.start_x, self.cur_x)
-        y1 = min(self.start_y, self.cur_y)
-        x2 = max(self.start_x, self.cur_x)
-        y2 = max(self.start_y, self.cur_y)
+        # Capture absolute end position
+        end_abs_x, end_abs_y = self.top.winfo_pointerxy()
+
+        # Calculate absolute bounds
+        x1 = min(self.start_abs_x, end_abs_x)
+        y1 = min(self.start_abs_y, end_abs_y)
+        x2 = max(self.start_abs_x, end_abs_x)
+        y2 = max(self.start_abs_y, end_abs_y)
         
         width = x2 - x1
         height = y2 - y1
         
-        # Adjust for virtual screen offset if necessary
-        # The event.x/y are relative to the window, which is positioned at virtual x,y.
-        # So if the window is at -1920, and event.x is 10, the actual screen x is -1910.
-        # However, pyautogui usually expects coordinates relative to the primary monitor (0,0) OR absolute virtual coordinates?
-        # Pyautogui handles virtual coordinates fine.
-        # We need to pass the absolute screen coordinates.
-        
-        vx, vy, vw, vh = get_virtual_screen_geometry()
-        abs_x = vx + x1
-        abs_y = vy + y1
-        
         # Ensure we have a valid selection
         if width > 5 and height > 5:
-            self.on_selection_complete(abs_x, abs_y, width, height)
+            self.on_selection_complete(x1, y1, width, height)
         
         self.close()
 
@@ -112,8 +107,8 @@ class ColorPickerOverlay:
         self.top.bind("<Escape>", lambda e: self.close())
 
     def on_click(self, event):
-        # event.x_root and y_root are absolute screen coordinates, which is what we want
-        x, y = event.x_root, event.y_root
+        # Use absolute pointer coordinates for consistency
+        x, y = self.top.winfo_pointerxy()
         self.on_color_picked(x, y)
         self.close()
 
