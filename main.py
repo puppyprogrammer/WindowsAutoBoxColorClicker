@@ -108,7 +108,7 @@ class AutoBoxApp:
         self.spin_delay = ttk.Spinbox(frame_delay, from_=0.0, to=10.0, increment=0.1, textvariable=self.var_delay, width=5)
         self.spin_delay.pack(side="left", padx=10)
 
-        self.btn_toggle = ttk.Button(frame_controls, text="INITIATE SEQUENCE", command=self.toggle_bot)
+        self.btn_toggle = ttk.Button(frame_controls, text="START", command=self.toggle_bot)
         self.btn_toggle.pack(fill="x", pady=5)
 
         # Status
@@ -174,7 +174,7 @@ class AutoBoxApp:
             return
 
         self.is_running = True
-        self.btn_toggle.config(text="TERMINATE SEQUENCE")
+        self.btn_toggle.config(text="STOP")
         self.lbl_status.config(text="STATUS: RUNNING...")
         self.btn_add.config(state="disabled")
         self.btn_del.config(state="disabled")
@@ -190,7 +190,7 @@ class AutoBoxApp:
 
     def stop_bot(self):
         self.is_running = False
-        self.btn_toggle.config(text="INITIATE SEQUENCE")
+        self.btn_toggle.config(text="START")
         self.lbl_status.config(text="STATUS: PAUSED")
         self.btn_add.config(state="normal")
         self.btn_del.config(state="normal")
