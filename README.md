@@ -1,10 +1,3 @@
-# AutoBox Color Clicker
-A simple Python tool to automate clicking on a specific color within a selected screen region.
-
-## Setup
-1.  Ensure Python is installed.
-2.  Run `run.bat` to start the application.
-    - If it fails, you may need to install dependencies manually: `pip install -r requirements.txt`
 
 ## How to Use
 1.  **Region Selection**: Click **"1. New Selection Region"**. Drag a box around the area you want to monitor.
