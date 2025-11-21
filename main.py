@@ -90,10 +90,20 @@ class AutoBoxApp:
         frame_target_btns = ttk.Frame(self.root)
         frame_target_btns.pack(fill="x", padx=10, pady=5)
         
-        self.btn_add = ttk.Button(frame_target_btns, text="+ ADD TARGET", command=self.start_add_target_flow)
+        btn_style = {
+            "bg": self.accent_color,
+            "fg": self.fg_color,
+            "font": ("Consolas", 10, "bold"),
+            "relief": "flat",
+            "activebackground": self.fg_color,
+            "activeforeground": self.bg_color,
+            "cursor": "hand2"
+        }
+        
+        self.btn_add = tk.Button(frame_target_btns, text="+ ADD TARGET", command=self.start_add_target_flow, **btn_style)
         self.btn_add.pack(side="left", fill="x", expand=True, padx=(0, 5))
         
-        self.btn_del = ttk.Button(frame_target_btns, text="- REMOVE SELECTED", command=self.remove_target)
+        self.btn_del = tk.Button(frame_target_btns, text="- REMOVE SELECTED", command=self.remove_target, **btn_style)
         self.btn_del.pack(side="left", fill="x", expand=True, padx=(5, 0))
 
         # Main Controls
@@ -108,7 +118,7 @@ class AutoBoxApp:
         self.spin_delay = ttk.Spinbox(frame_delay, from_=0.0, to=10.0, increment=0.1, textvariable=self.var_delay, width=5)
         self.spin_delay.pack(side="left", padx=10)
 
-        self.btn_toggle = ttk.Button(frame_controls, text="START", command=self.toggle_bot)
+        self.btn_toggle = tk.Button(frame_controls, text="START", command=self.toggle_bot, **btn_style)
         self.btn_toggle.pack(fill="x", pady=5)
 
         # Status
