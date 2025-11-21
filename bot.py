@@ -1,6 +1,8 @@
 import pyautogui
 import time
 import threading
+import mss
+from PIL import Image
 
 class ColorClicker:
     def __init__(self, targets, tolerance=10, delay=0.1):
