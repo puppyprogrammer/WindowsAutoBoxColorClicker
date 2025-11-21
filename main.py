@@ -33,6 +33,15 @@ class AutoBoxApp:
         # UI Components
         self.create_widgets()
 
+        # Bindings
+        self.root.bind('<Escape>', self.quit_app)
+        self.root.protocol("WM_DELETE_WINDOW", self.quit_app)
+
+    def quit_app(self, event=None):
+        self.stop_bot()
+        self.root.destroy()
+
+
     def create_widgets(self):
         # Header
         header = ttk.Label(self.root, text="AutoBox Color Clicker", font=("Helvetica", 16, "bold"))
