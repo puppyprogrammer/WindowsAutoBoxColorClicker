@@ -16,8 +16,8 @@ class AutoBoxApp:
     def __init__(self, root):
         self.root = root
         self.root.title("AutoBox Matrix v2.0")
-        self.root.geometry("500x500")
-        self.root.resizable(False, False)
+        self.root.geometry("500x600")
+        self.root.resizable(True, True)
         
         # Theme Colors
         self.bg_color = "#000000"
