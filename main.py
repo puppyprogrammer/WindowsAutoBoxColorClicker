@@ -100,10 +100,13 @@ class AutoBoxApp:
             "cursor": "hand2"
         }
         
-        self.btn_add = tk.Button(frame_target_btns, text="+ ADD TARGET", command=self.start_add_target_flow, **btn_style)
+        self.btn_add = tk.Button(frame_target_btns, text="+ ADD REGION", command=self.start_add_target_flow, **btn_style)
         self.btn_add.pack(side="left", fill="x", expand=True, padx=(0, 5))
         
-        self.btn_del = tk.Button(frame_target_btns, text="- REMOVE SELECTED", command=self.remove_target, **btn_style)
+        self.btn_set_color = tk.Button(frame_target_btns, text="(o) SET COLOR", command=self.start_set_color_flow, **btn_style)
+        self.btn_set_color.pack(side="left", fill="x", expand=True, padx=5)
+        
+        self.btn_del = tk.Button(frame_target_btns, text="- REMOVE", command=self.remove_target, **btn_style)
         self.btn_del.pack(side="left", fill="x", expand=True, padx=(5, 0))
 
         # Main Controls
@@ -131,21 +134,24 @@ class AutoBoxApp:
         SelectionOverlay(self.root, self.on_region_selected)
 
     def on_region_selected(self, x, y, w, h):
-        self.temp_region = (x, y, w, h)
         self.root.deiconify()
+        # Add pending target
+        target = {'region': (x, y, w, h), 'color': None}
+        self.targets.append(target)
+        self.update_listbox()
         
-        # User feedback
-        self.list_targets.insert(tk.END, ">> REGION ACQUIRED <<")
-        self.list_targets.insert(tk.END, ">> WAITING FOR USER... <<")
-        self.list_targets.see(tk.END)
-        self.root.update()
+        # Select the new item
+        self.list_targets.selection_clear(0, tk.END)
+        self.list_targets.selection_set(tk.END)
         
-        # Modal dialog to let user control the pace
-        messagebox.showinfo("Next Step", "Region selected.\n\nClick OK, then click the specific color on your screen you want to track.")
-        
-        self.list_targets.insert(tk.END, ">> SELECT TARGET COLOR NOW <<")
-        self.list_targets.see(tk.END)
-        
+        self.lbl_status.config(text="STATUS: REGION ADDED. NOW SET COLOR.")
+
+    def start_set_color_flow(self):
+        selection = self.list_targets.curselection()
+        if not selection:
+            self.lbl_status.config(text="ERROR: NO TARGET SELECTED")
+            return
+            
         self.lbl_status.config(text="STATUS: PICK COLOR...")
         self.root.iconify()
         ColorPickerOverlay(self.root, self.on_color_picked)
@@ -156,13 +162,13 @@ class AutoBoxApp:
             screenshot = pyautogui.screenshot(region=(x, y, 1, 1))
             color = screenshot.getpixel((0, 0))
             
-            # Add to targets
-            target = {'region': self.temp_region, 'color': color}
-            self.targets.append(target)
-            
-            # Update Listbox
-            self.update_listbox()
-            self.lbl_status.config(text="STATUS: TARGET ACQUIRED")
+            # Update selected target
+            selection = self.list_targets.curselection()
+            if selection:
+                index = selection[0]
+                self.targets[index]['color'] = color
+                self.update_listbox()
+                self.lbl_status.config(text="STATUS: TARGET READY")
             
         except Exception as e:
             self.lbl_status.config(text=f"ERROR: {e}")
@@ -171,7 +177,7 @@ class AutoBoxApp:
         self.list_targets.delete(0, tk.END)
         for i, t in enumerate(self.targets):
             r = t['region']
-            c = t['color']
+            c = t['color'] if t['color'] else "PENDING"
             self.list_targets.insert(tk.END, f"[{i+1}] Region: {r} | Color: {c}")
 
     def remove_target(self):

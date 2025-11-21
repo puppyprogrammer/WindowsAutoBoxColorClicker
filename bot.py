@@ -37,6 +37,9 @@ class ColorClicker:
                     region = target['region']
                     target_color = target['color']
                     
+                    if target_color is None:
+                        continue
+                    
                     # Take a screenshot of the region
                     img = pyautogui.screenshot(region=region)
                     
