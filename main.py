@@ -73,6 +73,14 @@ class AutoBoxApp:
         frame_controls = ttk.LabelFrame(self.root, text="Automation", padding=10)
         frame_controls.pack(fill="x", padx=10, pady=10)
 
+        # Delay Input
+        frame_delay = ttk.Frame(frame_controls)
+        frame_delay.pack(fill="x", pady=(0, 5))
+        ttk.Label(frame_delay, text="Delay (sec):").pack(side="left")
+        self.var_delay = tk.DoubleVar(value=0.1)
+        self.spin_delay = ttk.Spinbox(frame_delay, from_=0.0, to=10.0, increment=0.1, textvariable=self.var_delay, width=5)
+        self.spin_delay.pack(side="left", padx=5)
+
         self.btn_toggle = ttk.Button(frame_controls, text="3. Start", command=self.toggle_bot, state="disabled")
         self.btn_toggle.pack(fill="x", pady=5)
 
@@ -132,8 +140,14 @@ class AutoBoxApp:
         self.btn_toggle.config(text="Stop")
         self.lbl_status.config(text="Running...", foreground="blue")
         self.btn_new.config(state="disabled")
+        self.spin_delay.config(state="disabled")
         
-        self.bot = ColorClicker(self.selection_region, self.target_color)
+        try:
+            delay = float(self.var_delay.get())
+        except ValueError:
+            delay = 0.1
+
+        self.bot = ColorClicker(self.selection_region, self.target_color, delay=delay)
         self.bot.start()
 
     def stop_bot(self):
@@ -141,6 +155,7 @@ class AutoBoxApp:
         self.btn_toggle.config(text="Start")
         self.lbl_status.config(text="Stopped", foreground="gray")
         self.btn_new.config(state="normal")
+        self.spin_delay.config(state="normal")
         
         if self.bot:
             self.bot.stop()

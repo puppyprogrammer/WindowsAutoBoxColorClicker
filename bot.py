@@ -3,15 +3,17 @@ import time
 import threading
 
 class ColorClicker:
-    def __init__(self, region, target_color, tolerance=10):
+    def __init__(self, region, target_color, tolerance=10, delay=0.1):
         """
         region: tuple (x, y, width, height)
         target_color: tuple (r, g, b)
         tolerance: int, allowable difference in color values
+        delay: float, seconds to wait between checks
         """
         self.region = region
         self.target_color = target_color
         self.tolerance = tolerance
+        self.delay = delay
         self.running = False
         self.thread = None
 
@@ -49,8 +51,8 @@ class ColorClicker:
                     # Wait a bit to avoid rapid-fire clicking on the same frame
                     time.sleep(0.5)
                 
-                # Small sleep to prevent CPU hogging
-                time.sleep(0.1)
+                # Small sleep to prevent CPU hogging and respect user delay
+                time.sleep(self.delay)
                 
             except Exception as e:
                 print(f"Error in bot loop: {e}")
