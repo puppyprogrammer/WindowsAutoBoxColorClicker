@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import pyautogui
 from overlay import SelectionOverlay, ColorPickerOverlay
 from bot import ColorClicker
@@ -129,8 +129,6 @@ class AutoBoxApp:
         self.lbl_status.config(text="STATUS: SELECT REGION...")
         self.root.iconify()
         SelectionOverlay(self.root, self.on_region_selected)
-
-from tkinter import messagebox
 
     def on_region_selected(self, x, y, w, h):
         self.temp_region = (x, y, w, h)
