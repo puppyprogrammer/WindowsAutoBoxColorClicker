@@ -130,28 +130,23 @@ class AutoBoxApp:
         self.root.iconify()
         SelectionOverlay(self.root, self.on_region_selected)
 
+from tkinter import messagebox
+
     def on_region_selected(self, x, y, w, h):
         self.temp_region = (x, y, w, h)
         self.root.deiconify()
         
-        # User feedback sequence
+        # User feedback
         self.list_targets.insert(tk.END, ">> REGION ACQUIRED <<")
-        self.list_targets.insert(tk.END, ">> PREPARING COLOR PICKER... <<")
+        self.list_targets.insert(tk.END, ">> WAITING FOR USER... <<")
         self.list_targets.see(tk.END)
         self.root.update()
         
-        # Countdown to give user time to read
-        import time
-        for i in range(3, 0, -1):
-            self.list_targets.insert(tk.END, f">> LAUNCHING IN {i}... <<")
-            self.list_targets.see(tk.END)
-            self.root.update()
-            time.sleep(0.8)
-            
+        # Modal dialog to let user control the pace
+        messagebox.showinfo("Next Step", "Region selected.\n\nClick OK, then click the specific color on your screen you want to track.")
+        
         self.list_targets.insert(tk.END, ">> SELECT TARGET COLOR NOW <<")
         self.list_targets.see(tk.END)
-        self.root.update()
-        time.sleep(0.5)
         
         self.lbl_status.config(text="STATUS: PICK COLOR...")
         self.root.iconify()
